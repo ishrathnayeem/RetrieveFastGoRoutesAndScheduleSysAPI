@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+   
+      
+    <flow name="retrievefastgoroutesandschedulesysapi-main">
+        <http:listener config-ref="retrievefastgoroutesandschedulesysapi-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="retrievefastgoroutesandschedulesysapi-config" />
+		<error-handler ref="fastGoglobalErrorHandlerError_Handler" />
+    </flow>
+    <flow name="retrievefastgoroutesandschedulesysapi-console">
+        <http:listener config-ref="retrievefastgoroutesandschedulesysapi-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="retrievefastgoroutesandschedulesysapi-config" />
+		<error-handler ref="fastGoglobalErrorHandlerError_Handler" />
+    </flow>
+	<sub-flow name="retrievefastgoroutesandschedulesysapiSub_Flow" doc:id="f9da95eb-4724-4972-b7eb-358f3f1e4c65" >
+		<ee:transform doc:name="Transform Message" doc:id="9344c3e5-a543-4249-b427-9a43410602fd" >
+			<ee:variables >
+				<ee:set-variable variableName="transportType" ><![CDATA[attributes.uriParams.'transportType']]></ee:set-variable>
+				<ee:set-variable variableName="transportCompany" ><![CDATA[attributes.uriParams.'transportCompany']]></ee:set-variable>
+				<ee:set-variable variableName="transactionId" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.headers.transactionId]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</sub-flow>
+	<flow name="get:\(transportType)\(transportCompany)\routes:retrievefastgoroutesandschedulesysapi-config">
+		<flow-ref doc:name="Flow Reference Initialise Request Variable" doc:id="52596314-f382-4db4-a142-62dea4f0792e" name="retrievefastgoroutesandschedulesysapiSub_Flow"/>
+		<logger level="INFO" doc:name="Logger" doc:id="d8b247ba-4c9b-4dad-84fb-81a49ab4d713" message="Request recieved for Routes FastGo Sys API For TransactionId: #[vars.transactionId]"/>
+		<flow-ref doc:name="Flow Reference" doc:id="6941e674-c907-4fb5-bec7-428457376383" name="FastGo-GetRoutes-ImplementationSub_Flow"/>
+		<logger level="INFO" doc:name="Logger" doc:id="7ada0b7c-2ec4-4b54-8e25-ec8cdf28067f" message="Response Sent for Routes FastGo Sys API For TransactionId: #[vars.transactionId]"/>
+		<error-handler ref="fastGoglobalErrorHandlerError_Handler" />
+    </flow>
+    <flow name="get:\(transportType)\(transportCompany)\schedules:retrievefastgoroutesandschedulesysapi-config">
+        <flow-ref doc:name="Flow Reference Initialise Request Variable" doc:id="db88ff2c-08a4-4905-acf5-641f6fafb650" name="retrievefastgoroutesandschedulesysapiSub_Flow"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2635964a-786e-426e-9439-b719895ac0d3" message="Request recieved for Schedules FastGo Sys API For TransactionId: #[vars.transactionId]"/>
+		<flow-ref doc:name="Flow Reference" doc:id="63e1315a-03df-4285-b454-c343c96841ed" name="FastGo-GetSchedules-ImplementationSub_Flow"/>
+		<logger level="INFO" doc:name="Logger" doc:id="f533bd39-18fc-49be-8e88-202ff1fc0f5d" message="Response Sent for Schedules FastGo Sys API For TransactionId: #[vars.transactionId]"/>
+		<error-handler ref="fastGoglobalErrorHandlerError_Handler" />
+    </flow>
+</mule>

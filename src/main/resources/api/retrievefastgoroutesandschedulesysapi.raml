@@ -1,0 +1,62 @@
+#%RAML 1.0
+title: RetrieveFastGoRoutesAndScheduleSysAPI
+description: This system API will fetch routes and Schedules from FastGo System
+uses:
+  common: /library/common/traits/common_library.raml
+  routes: /library/routes/routes_library.raml
+  schedules: /library/schedules/schedule_library.raml
+
+/{transportType}:
+  /{transportCompany}:
+    /routes:
+      get:
+        is:
+          - common.transactionId
+        responses:
+          200:
+            body:
+              application/json:
+                type: routes.getRoutesResponseDataType
+                example: !include /library/routes/examples/getRoutes_200Response_Example.json
+          400:
+            body:
+              application/json:
+                type: common.commonError
+                example: !include /library/common/examples/400Response_Example.json
+          404:
+            body:
+              application/json:
+                type: common.commonError
+                example: !include /library/common/examples/404Response_Example.json
+          500:
+            body:
+              application/json:
+                type: common.commonError
+                example: !include /library/common/examples/500Response_Example.json
+    /schedules:
+      get:
+        is:
+          - common.transactionId
+          - common.departureLocationCode
+          - common.destinationLocationCode
+        responses:
+          200:
+            body:
+              application/json:
+                type: schedules.getSchedulesResponseDataType
+                example: !include /library/schedules/examples/getSchedules_200Response_Example.json
+          400:
+            body:
+              application/json:
+                type: common.commonError
+                example: !include /library/common/examples/400Response_Example.json
+          404:
+            body:
+              application/json:
+                type: common.commonError
+                example: !include /library/common/examples/404Response_Example.json
+          500:
+            body:
+              application/json:
+                type: common.commonError
+                example: !include /library/common/examples/500Response_Example.json
